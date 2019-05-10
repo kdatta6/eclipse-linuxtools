@@ -103,10 +103,10 @@ public class PerfLaunchConfigDelegate extends AbstractCLaunchDelegate {
             }
 
             URI workingDirURI = new URI(config.getAttribute(RemoteProxyCMainTab.ATTR_REMOTE_WORKING_DIRECTORY_NAME, EMPTY_STRING));
-	    boolean isLocalProject = false;
+            boolean isLocalProject = false;
             // Local project
             if (workingDirURI.toString().equals(EMPTY_STRING)) {
-		isLocalProject = true;
+                isLocalProject = true;
             	workingDirURI = getWorkingDirectory(config).toURI();
             	binPath = CDebugUtils.verifyProgramPath(config);
             } else {
@@ -124,13 +124,13 @@ public class PerfLaunchConfigDelegate extends AbstractCLaunchDelegate {
                 RemoteConnection workingDirRC = new RemoteConnection(workingDirURI);
                 IRemoteFileProxy workingDirRFP = workingDirRC.getRmtFileProxy();
                 if (!isLocalProject) {
-		    perfPathString = RuntimeProcessFactory.getFactory().whichCommand(PerfPlugin.PERF_COMMAND, null);
-		    if (config.getAttribute(RemoteProxyCMainTab.ATTR_ENABLE_COPY_FROM_EXE, false)) {
-			// copy local binary to remote machine
-			URI localBinURI = URI.create(config.getAttribute(RemoteProxyCMainTab.ATTR_COPY_FROM_EXE_NAME, EMPTY_STRING));
-			IFileStore localBin = EFS.getLocalFileSystem().getStore(localBinURI);
-			IFileStore remoteBin = workingDirRFP.getResource(binPath.lastSegment());
-			localBin.copy(remoteBin, (EFS.OVERWRITE | EFS.SHALLOW), new NullProgressMonitor());
+                    perfPathString = RuntimeProcessFactory.getFactory().whichCommand(PerfPlugin.PERF_COMMAND, null);
+                    if (config.getAttribute(RemoteProxyCMainTab.ATTR_ENABLE_COPY_FROM_EXE, false)) {
+                        // copy local binary to remote machine
+                        URI localBinURI = URI.create(config.getAttribute(RemoteProxyCMainTab.ATTR_COPY_FROM_EXE_NAME, EMPTY_STRING));
+                        IFileStore localBin = EFS.getLocalFileSystem().getStore(localBinURI);
+                        IFileStore remoteBin = workingDirRFP.getResource(binPath.lastSegment());
+                        localBin.copy(remoteBin, (EFS.OVERWRITE | EFS.SHALLOW), new NullProgressMonitor());
 		    }
 		}
 
@@ -147,17 +147,16 @@ public class PerfLaunchConfigDelegate extends AbstractCLaunchDelegate {
 
                 //Spawn the process
                 String[] commandArray = command.toArray(new String[command.size()]);
-		Process pProxy;
-		if (isLocalProject) {
-		    IFileStore workingDir = workingDirRFP.getResource(workingDirURI.getPath());
-		    pProxy = RuntimeProcessFactory.getFactory().exec(commandArray, getEnvironment(config), workingDir, project);
-		}
-		else {
-		    String[] commandArgs = command.subList(1, command.size()).toArray(new String[command.size()-1]);
+                Process pProxy;
+                if (isLocalProject) {
+                    IFileStore workingDir = workingDirRFP.getResource(workingDirURI.getPath());
+                    pProxy = RuntimeProcessFactory.getFactory().exec(commandArray, getEnvironment(config), workingDir, project);
+                }
+                else {
+                    String[] commandArgs = command.subList(1, command.size()).toArray(new String[command.size()-1]);
                     IRemoteCommandLauncher launcher = RemoteProxyManager.getInstance().getLauncher(workingDirURI);
                     pProxy = launcher.execute(new Path(perfPathString), commandArgs, getEnvironment(config), workingDirPath, new NullProgressMonitor());
 		}
-
                 MessageConsole console = new MessageConsole("Perf Console", null); //$NON-NLS-1$
                 console.activate();
                 ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { console });
@@ -186,11 +185,11 @@ public class PerfLaunchConfigDelegate extends AbstractCLaunchDelegate {
                 pProxy.destroy();
 
 		// if executing remotely, download the perf.data file
-		if (!isLocalProject) {
-		    IFileStore remotePerfData = workingDirRFP.getResource(workingDirPath.append(PerfPlugin.PERF_DEFAULT_DATA).toString());
-		    URI localPerfDataURI = URI.create(getWorkingDirectory(config).toString() + IPath.SEPARATOR + PerfPlugin.PERF_DEFAULT_DATA);
-		    IFileStore localPerfData = EFS.getLocalFileSystem().getStore(localPerfDataURI);
-		    remotePerfData.copy(localPerfData, (EFS.OVERWRITE | EFS.SHALLOW), new NullProgressMonitor());
+                if (!isLocalProject) {
+                    IFileStore remotePerfData = workingDirRFP.getResource(workingDirPath.append(PerfPlugin.PERF_DEFAULT_DATA).toString());
+                    URI localPerfDataURI = URI.create(getWorkingDirectory(config).toString() + IPath.SEPARATOR + PerfPlugin.PERF_DEFAULT_DATA);
+                    IFileStore localPerfData = EFS.getLocalFileSystem().getStore(localPerfDataURI);
+                    remotePerfData.copy(localPerfData, (EFS.OVERWRITE | EFS.SHALLOW), new NullProgressMonitor());
 		}
 
                 PrintStream print = null;
@@ -231,13 +230,13 @@ public class PerfLaunchConfigDelegate extends AbstractCLaunchDelegate {
                     print.println("Analysing recorded perf.data, please wait..."); //$NON-NLS-1$
                     //Possibly should pass this (the console reference) on to PerfCore.Report if theres anything we ever want to spit out to user.
                 }
-		if (isLocalProject) {
-		    PerfCore.report(config, workingDirPath, monitor, null, print);
-		}
-		else {
-		    Path localPerfDataDir = new Path(getWorkingDirectory(config).toString() + String.valueOf(IPath.SEPARATOR));
-		    PerfCore.report(config, localPerfDataDir, monitor, null, print);
-		}
+                if (isLocalProject) {
+                    PerfCore.report(config, workingDirPath, monitor, null, print);
+                }
+                else {
+                    Path localPerfDataDir = new Path(getWorkingDirectory(config).toString() + String.valueOf(IPath.SEPARATOR));
+                    PerfCore.report(config, localPerfDataDir, monitor, null, print);
+                }
 
                 URI perfDataURI = null;
                 IRemoteFileProxy proxy = null;
